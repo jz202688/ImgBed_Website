@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="format-detection" content="telephone=yes">
+    <title>Image Hosting - Upload & Share</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+        body { background: #f0f4f8; padding: 0; margin: 0; }
+        
+        /* ===== Top Navigation Bar ===== */
+        .navbar {
+            background: #2b2d42;
+            color: white;
+            padding: 0.7rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .navbar-brand { 
+            font-size: 1.1rem; 
+            font-weight: 600; 
+            color: white; 
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .nav-middle { display: flex; gap: 1.2rem; align-items: center; flex-wrap: wrap; }
+        .nav-link {
+            color: #e2e8f0;
+            text-decoration: none;
+            font-size: 0.9rem;
+            padding: 0.4rem 0.6rem;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+        .nav-link:hover { background: rgba(255,255,255,0.15); }
+        .btn-email { color: #ffd166 !important; }
+        .btn-phone { color: #80ed99 !important; }
+        
+        /* ===== User Menu ===== */
+        .user-menu-wrapper { position: relative; }
+        .user-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #28c76f;
+            color: white;
+            border: none;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .user-btn:hover { transform: scale(1.05); }
+        .user-dropdown {
+            display: none;
+            position: absolute;
+            top: 44px;
+            right: 0;
+            background: #3a3c56;
+            border-radius: 8px;
+            min-width: 180px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+            z-index: 1001;
+            overflow: hidden;
+        }
+        .user-dropdown.show { display: block; }
+        .dropdown-item {
+            padding: 0.7rem 1rem;
+            color: #e2e8f0;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            text-decoration: none;
+        }
+        .dropdown-item:hover { background: #4a4c6e; }
+        .dropdown-item.divider {
+            border-top: 1px solid #555777;
+            margin: 0.3rem 0;
+            padding: 0;
+            cursor: default;
+        }
+        .dropdown-item.divider:hover { background: transparent; }
+        .dropdown-item.sign-out { color: #ff6b6b; }
+        .dropdown-item.sign-out:hover { background: #5c3a3a; }
+        
+        /* ===== Page Content ===== */
+        .page-container { max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        .page-title {
+            color: #2b2d42;
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        
+        /* ===== GRAB A LINK Section ===== */
+        .link-section {
+            background: #3a3c56;
+            border-radius: 8px;
+            padding: 1rem 1.2rem;
+            margin: 1.5rem 1rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            color: white;
+            display: none;
+        }
+        .link-label {
+            font-size: 0.85rem;
+            color: #b8b8d1;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+        }
+        .link-row {
+            display: flex;
+            gap: 0.7rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .link-input {
+            flex: 1;
+            min-width: 220px;
+            background: #2b2d42;
+            border: 1px solid #555777;
+            color: #e2e8f0;
+            padding: 0.6rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            outline: none;
+        }
+        .copy-btn {
+            background: #28c76f;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 0.6rem 1.4rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            white-space: nowrap;
+            font-size: 0.9rem;
+        }
+        .copy-btn:hover { background: #20a85c; }
+        .copy-btn.copied { background: #1e8449; }
+        
+        /* ===== Share Section ===== */
+        .share-section {
+            background: #3a3c56;
+            border-radius: 8px;
+            padding: 1rem 1.2rem;
+            margin: 0 1rem 1.5rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            display: none;
+        }
+        .share-icons {
+            display: flex;
+            gap: 0.8rem;
+            align-items: center;
+            margin-bottom: 0.6rem;
+        }
+        .share-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .share-icon:hover { transform: scale(1.1); }
+        .icon-email { background: #4285f4; }
+        .icon-reddit { background: #ff4500; }
+        .icon-facebook { background: #1877f2; }
+        .icon-tumblr { background: #35465c; }
+        
+        .more-btn {
+            background: transparent;
+            color: #b8b8d1;
+            font-size: 0.85rem;
+            padding: 0.2rem 0.4rem;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        .more-btn:hover { color: #e2e8f0; }
+        .more-dropdown {
+            display: none;
+            margin-top: 0.5rem;
+            background: #2b2d42;
+            border-radius: 6px;
+            padding: 0.4rem 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .more-dropdown.show { display: block; }
+        .more-item {
+            padding: 0.5rem 1rem;
+            color: #e2e8f0;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .more-item:hover { background: #3a3c56; }
+        
+        /* ===== About Section ===== */
+        .intro-box {
+            background: white;
+            border-left: 4px solid #4285f4;
+            border-radius: 8px;
+            padding: 1.2rem 1.5rem;
+            margin: 0 1rem 1.5rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+        .intro-title {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: #2b2d42;
+            margin-bottom: 0.6rem;
+        }
+        .intro-text {
+            font-size: 0.9rem;
+            color: #475569;
+            line-height: 1.6;
+        }
+        
+        /* ===== Upload Area ===== */
+        .container { max-width: 700px; margin: 0 auto 2rem; padding: 0 1rem; }
+        h1 { color: #2b2d42; text-align: center; margin-bottom: 1.2rem; font-size: 1.6rem; }
+        .upload-box {
+            border: 3px dashed #4285f4;
+            border-radius: 12px;
+            padding: 2.5rem 2rem;
+            text-align: center;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .upload-box:hover { border-color: #2563eb; background: #f8faff; }
+        .upload-box.active { border-color: #28c76f; background: #f0fdf4; }
+        input[type="file"] { display: none; }
+        .icon { font-size: 2.5rem; color: #4285f4; margin-bottom: 0.8rem; }
+        .tip { color: #64748b; font-size: 0.9rem; }
+        .result { margin-top: 1.5rem; display: none; }
+        .preview { max-width: 100%; max-height: 300px; border-radius: 6px; margin-bottom: 1rem; border: 1px solid #e2e8f0; }
+        .note { margin-top: 0.8rem; font-size: 0.8rem; color: #94a3b8; }
+        
+        /* ===== Login Modal ===== */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 350px;
+            position: relative;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+        .close-btn {
+            position: absolute;
+            right: 1rem;
+            top: 0.5rem;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: #94a3b8;
+            transition: color 0.2s;
+        }
+        .close-btn:hover { color: #2b2d42; }
+        .modal h2 { color: #2b2d42; margin-bottom: 1.5rem; text-align: center; }
+        .modal .input-group { margin-bottom: 1rem; }
+        .modal label { display: block; margin-bottom: 0.3rem; color: #475569; font-size: 0.9rem; }
+        .modal input { 
+            width: 100%; 
+            padding: 0.7rem; 
+            border: 1px solid #cbd5e1; 
+            border-radius: 6px; 
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .modal input:focus { border-color: #4285f4; }
+        .modal .btn { 
+            width: 100%; 
+            padding: 0.75rem; 
+            background: #28c76f; 
+            color: white; 
+            border: none; 
+            border-radius: 6px; 
+            font-weight: 600; 
+            cursor: pointer; 
+            margin-top: 0.5rem;
+            transition: background 0.2s;
+        }
+        .modal .btn:hover { background: #20a85c; }
+        .modal .divider {
+            text-align: center;
+            margin: 1rem 0;
+            color: #94a3b8;
+            font-size: 0.85rem;
+            position: relative;
+        }
+        .modal .divider::before,
+        .modal .divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 40%;
+            height: 1px;
+            background: #e2e8f0;
+        }
+        .modal .divider::before { left: 0; }
+        .modal .divider::after { right: 0; }
+        .modal .register-link {
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: #475569;
+        }
+        .modal .register-link a {
+            color: #4285f4;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .modal .register-link a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <!-- ===== Navigation Bar ===== -->
+    <nav class="navbar">
+        <a href="index.html" class="navbar-brand">📤 Image Hosting</a>
+        <div class="nav-middle">
+            <a href="mailto:zheng20262026@outlook.com" class="nav-link btn-email">📧 Contact Us</a>
+            <a href="tel:+541157457773" class="nav-link btn-phone">📞 +54 11 57457773</a>
+        </div>
+        <div class="user-menu-wrapper">
+            <button class="user-btn" id="userBtn" title="Account">G</button>
+            <div class="user-dropdown" id="userDropdown">
+                <a href="posts.html" class="dropdown-item">📝 Posts</a>
+                <a href="favorites.html" class="dropdown-item">⭐ Favorites</a>
+                <a href="comments.html" class="dropdown-item">💬 Comments</a>
+                <a href="about.html" class="dropdown-item">ℹ️ About</a>
+                <div class="dropdown-item divider"></div>
+                <a href="settings.html" class="dropdown-item">⚙️ Settings</a>
+                <div class="dropdown-item sign-out" onclick="signOut()">🚪 Sign Out</div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ===== Main Content ===== -->
+    <div style="margin-top: 1rem;">
+        <!-- GRAB A LINK Section -->
+        <div class="link-section" id="linkSection">
+            <div class="link-label">GRAB A LINK</div>
+            <div class="link-row">
+                <input type="text" class="link-input" id="urlOutput" readonly placeholder="Image URL will appear here">
+                <button class="copy-btn" id="copyBtn">Copy</button>
+            </div>
+        </div>
+
+        <!-- Share Section -->
+        <div class="share-section" id="shareSection">
+            <div class="share-icons">
+                <button class="share-icon icon-email" id="shareEmail" title="Email">✉</button>
+                <button class="share-icon icon-reddit" id="shareReddit" title="Reddit">r</button>
+                <button class="share-icon icon-facebook" id="shareFB" title="Facebook">f</button>
+                <button class="share-icon icon-tumblr" id="shareTumblr" title="Tumblr">t</button>
+            </div>
+            <button class="more-btn" id="moreToggle">more options ▾</button>
+            <div class="more-dropdown" id="moreMenu">
+                <div class="more-item" id="shareX">Share to X (Twitter)</div>
+                <div class="more-item" id="shareWA">Share to WhatsApp</div>
+                <div class="more-item" id="shareEmbed">Get Embed Code</div>
+            </div>
+        </div>
+
+        <!-- About Section -->
+        <div class="intro-box">
+            <div class="intro-title">🌐 About This Site</div>
+            <div class="intro-text">
+                A free, stable, globally available image hosting platform designed for users who need to quickly generate image URLs. Get direct links upon upload — perfect for websites, documents, and social sharing. Powered by Cloudflare's global CDN for ultra-fast access in Argentina and beyond, permanently free.
+            </div>
+        </div>
+
+        <!-- Upload Area -->
+        <div class="container">
+            <h1>Upload Image → Generate Link</h1>
+            <div class="upload-box" id="dropZone">
+                <div class="icon">📁</div>
+                <p class="tip">Click to select an image, or drag & drop here<br>Supports JPG / PNG / WEBP / GIF</p>
+                <input type="file" id="fileInput" accept="image/*">
+            </div>
+            <div class="result" id="resultArea">
+                <img id="previewImg" class="preview" alt="Preview">
+                <p class="note">⚠️ Links are permanent and accessible worldwide</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== Login Modal ===== -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <span class="close-btn" id="closeModal">&times;</span>
+            <h2>Sign Up / Login</h2>
+            <form id="loginForm">
+                <div class="input-group">
+                    <label for="loginEmail">Email</label>
+                    <input type="email" id="loginEmail" required placeholder="Enter your email">
+                </div>
+                <div class="input-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" required placeholder="Enter your password">
+                </div>
+                <button type="submit" class="btn">Login</button>
+            </form>
+            <div class="divider">or</div>
+            <div class="register-link">
+                Don't have an account? <a href="#" id="showRegister">Sign Up Now</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Common Navigation & Auth Script
+        const userBtn = document.getElementById('userBtn');
+        const userDropdown = document.getElementById('userDropdown');
+        const loginModal = document.getElementById('loginModal');
+        const closeModal = document.getElementById('closeModal');
+        const loginForm = document.getElementById('loginForm');
+        const showRegister = document.getElementById('showRegister');
+
+        let isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+        let userEmail = localStorage.getItem('userEmail') || '';
+
+        function updateUserButton() {
+            userBtn.textContent = isLoggedIn && userEmail ? userEmail.charAt(0).toUpperCase() : 'G';
+        }
+        updateUserButton();
+
+        userBtn.addEventListener('click', e => {
+            e.stopPropagation();
+            if (isLoggedIn) {
+                userDropdown.classList.toggle('show');
+            } else {
+                loginModal.style.display = 'block';
+            }
+        });
+
+        document.addEventListener('click', () => userDropdown.classList.remove('show'));
+        userDropdown.addEventListener('click', e => e.stopPropagation());
+
+        function signOut() {
+            userDropdown.classList.remove('show');
+            if (confirm('Are you sure you want to sign out?')) {
+                isLoggedIn = false;
+                userEmail = '';
+                localStorage.removeItem('isLoggedIn');
+                localStorage.removeItem('userEmail');
+                updateUserButton();
+                alert('Signed out successfully!');
+                window.location.href = 'index.html';
+            }
+        }
+
+        closeModal.addEventListener('click', () => loginModal.style.display = 'none');
+        window.addEventListener('click', e => { if (e.target === loginModal) loginModal.style.display = 'none'; });
+
+        loginForm.addEventListener('submit', e => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            if (email && password) {
+                isLoggedIn = true;
+                userEmail = email;
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('userEmail', email);
+                updateUserButton();
+                loginModal.style.display = 'none';
+                alert('Login successful!');
+            }
+        });
+
+        showRegister.addEventListener('click', e => {
+            e.preventDefault();
+            alert('Registration coming soon!');
+        });
+
+        // ===== Page Specific Script: Upload =====
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const resultArea = document.getElementById('resultArea');
+        const previewImg = document.getElementById('previewImg');
+        const urlOutput = document.getElementById('urlOutput');
+        const copyBtn = document.getElementById('copyBtn');
+        const linkSection = document.getElementById('linkSection');
+        const shareSection = document.getElementById('shareSection');
+        const moreToggle = document.getElementById('moreToggle');
+        const moreMenu = document.getElementById('moreMenu');
+
+        function getShareUrl() { return urlOutput.value || window.location.href; }
+        function getShareText() { return encodeURIComponent('Check out this image!'); }
+
+        document.getElementById('shareEmail').addEventListener('click', () => {
+            window.location.href = `mailto:?subject=${getShareText()}&body=${encodeURIComponent(getShareUrl())}`;
+        });
+        document.getElementById('shareReddit').addEventListener('click', () => {
+            window.open(`https://www.reddit.com/submit?url=${encodeURIComponent(getShareUrl())}&title=${getShareText()}`, '_blank');
+        });
+        document.getElementById('shareFB').addEventListener('click', () => {
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(getShareUrl())}`, '_blank');
+        });
+        document.getElementById('shareTumblr').addEventListener('click', () => {
+            window.open(`https://www.tumblr.com/share/link?url=${encodeURIComponent(getShareUrl())}&name=${getShareText()}`, '_blank');
+        });
+
+        moreToggle.addEventListener('click', e => { e.stopPropagation(); moreMenu.classList.toggle('show'); });
+        document.addEventListener('click', () => moreMenu.classList.remove('show'));
+        moreMenu.addEventListener('click', e => e.stopPropagation());
+
+        document.getElementById('shareX').addEventListener('click', () => {
+            window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(getShareUrl())}&text=${getShareText()}`, '_blank');
+            moreMenu.classList.remove('show');
+        });
+        document.getElementById('shareWA').addEventListener('click', () => {
+            window.open(`https://wa.me/?text=${getShareText()}+${encodeURIComponent(getShareUrl())}`, '_blank');
+            moreMenu.classList.remove('show');
+        });
+        document.getElementById('shareEmbed').addEventListener('click', () => {
+            const code = `<img src="${getShareUrl()}" alt="Image">`;
+            navigator.clipboard.writeText(code).then(() => alert('Embed code copied!'));
+            moreMenu.classList.remove('show');
+        });
+
+        dropZone.addEventListener('click', () => fileInput.click());
+        dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('active'); });
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('active'));
+        dropZone.addEventListener('drop', e => {
+            e.preventDefault();
+            dropZone.classList.remove('active');
+            if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+        });
+        fileInput.addEventListener('change', e => { if (e.target.files.length) handleFile(e.target.files[0]); });
+
+        function handleFile(file) {
+            if (!file.type.startsWith('image/')) { alert('Please select an image!'); return; }
+            const tempUrl = URL.createObjectURL(file);
+            previewImg.src = tempUrl;
+            urlOutput.value = tempUrl;
+            resultArea.style.display = 'block';
+            linkSection.style.display = 'block';
+            shareSection.style.display = 'block';
+        }
+
+        copyBtn.addEventListener('click', () => {
+            urlOutput.select();
+            document.execCommand('copy');
+            copyBtn.textContent = 'Copied!';
+            copyBtn.classList.add('copied');
+            setTimeout(() => { copyBtn.textContent = 'Copy'; copyBtn.classList.remove('copied'); }, 2000);
+        });
+    </script>
+</body>
+</html>

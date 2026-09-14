@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Image Hosting</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+        body { background: #f0f4f8; padding: 0; margin: 0; }
+        
+        .navbar {
+            background: #2b2d42;
+            color: white;
+            padding: 0.7rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .navbar-brand { 
+            font-size: 1.1rem; 
+            font-weight: 600; 
+            color: white; 
+            text-decoration: none;
+        }
+        .nav-middle { display: flex; gap: 1.2rem; align-items: center; flex-wrap: wrap; }
+        .nav-link {
+            color: #e2e8f0;
+            text-decoration: none;
+            font-size: 0.9rem;
+            padding: 0.4rem 0.6rem;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+        .nav-link:hover { background: rgba(255,255,255,0.15); }
+        .btn-email { color: #ffd166 !important; }
+        .btn-phone { color: #80ed99 !important; }
+        
+        .user-menu-wrapper { position: relative; }
+        .user-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #28c76f;
+            color: white;
+            border: none;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .user-btn:hover { transform: scale(1.05); }
+        .user-dropdown {
+            display: none;
+            position: absolute;
+            top: 44px;
+            right: 0;
+            background: #3a3c56;
+            border-radius: 8px;
+            min-width: 180px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+            z-index: 1001;
+            overflow: hidden;
+        }
+        .user-dropdown.show { display: block; }
+        .dropdown-item {
+            padding: 0.7rem 1rem;
+            color: #e2e8f0;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            text-decoration: none;
+        }
+        .dropdown-item:hover { background: #4a4c6e; }
+        .dropdown-item.divider {
+            border-top: 1px solid #555777;
+            margin: 0.3rem 0;
+            padding: 0;
+            cursor: default;
+        }
+        .dropdown-item.divider:hover { background: transparent; }
+        .dropdown-item.sign-out { color: #ff6b6b; }
+        .dropdown-item.sign-out:hover { background: #5c3a3a; }
+        
+        .page-container { max-width: 700px; margin: 2rem auto; padding: 0 1rem; }
+        .page-title {
+            color: #2b2d42;
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .settings-section {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .section-title {
+            font-weight: 600;
+            color: #2b2d42;
+            font-size: 1.1rem;
+            margin-bottom: 1.2rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.4rem;
+            color: #475569;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        .form-group input[type="text"],
+        .form-group input[type="email"],
+        .form-group input[type="password"],
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.7rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: #4285f4;
+        }
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        .form-hint {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin-top: 0.3rem;
+        }
+        
+        /* Toggle Switch */
+        .toggle-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .toggle-row:last-child { border-bottom: none; }
+        .toggle-info { flex: 1; }
+        .toggle-label {
+            font-weight: 500;
+            color: #2b2d42;
+            font-size: 0.95rem;
+        }
+        .toggle-desc {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: 0.2rem;
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 26px;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #cbd5e1;
+            transition: 0.3s;
+            border-radius: 26px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+        input:checked + .slider { background-color: #28c76f; }
+        input:checked + .slider:before { transform: translateX(22px); }
+        
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        .btn-primary {
+            background: #28c76f;
+            color: white;
+            border: none;
+            padding: 0.7rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-primary:hover { background: #20a85c; }
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #475569;
+            border: none;
+            padding: 0.7rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-secondary:hover { background: #cbd5e1; }
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 0.7rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-danger:hover { background: #dc2626; }
+        
+        .danger-zone {
+            border: 1px solid #fecaca;
+            background: #fef2f2;
+        }
+        .danger-zone .section-title { color: #dc2626; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="index.html" class="navbar-brand">📤 Image Hosting</a>
+        <div class="nav-middle">
+            <a href="mailto:zheng20262026@outlook.com" class="nav-link btn-email">📧 Contact Us</a>
+            <a href="tel:+541157457773" class="nav-link btn-phone">📞 +54 11 57457773</a>
+        </div>
+        <div class="user-menu-wrapper">
+            <button class="user-btn" id="userBtn" title="Account">G</button>
+            <div class="user-dropdown" id="userDropdown">
+                <a href="posts.html" class="dropdown-item">📝 Posts</a>
+                <a href="favorites.html" class="dropdown-item">⭐ Favorites</a>
+                <a href="comments.html" class="dropdown-item">💬 Comments</a>
+                <a href="about.html" class="dropdown-item">ℹ️ About</a>
+                <div class="dropdown-item divider"></div>
+                <a href="settings.html" class="dropdown-item" style="background: #4a4c6e;">⚙️ Settings</a>
+                <div class="dropdown-item sign-out" onclick="signOut()">🚪 Sign Out</div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="page-container">
+        <h1 class="page-title">⚙️ Account Settings</h1>
+
+        <!-- 个人资料设置 -->
+        <div class="settings-section">
+            <div class="section-title">👤 Profile Information</div>
+            <div class="form-group">
+                <label for="displayName">Display Name</label>
+                <input type="text" id="displayName" placeholder="Enter your display name" value="User">
+            </div>
+            <div class="form-group">
+                <label for="userEmail">Email Address</label>
+                <input type="email" id="userEmail" placeholder="your@email.com" value="user@example.com">
+            </div>
+            <div class="form-group">
+                <label for="bio">Bio</label>
+                <textarea id="bio" placeholder="Tell us about yourself..."></textarea>
+            </div>
+            <div class="btn-group">
+                <button class="btn-primary" onclick="saveProfile()">Save Changes</button>
+                <button class="btn-secondary" onclick="resetForm()">Cancel</button>
+            </div>
+        </div>
+
+        <!-- 密码设置 -->
+        <div class="settings-section">
+            <div class="section-title">🔐 Password</div>
+            <div class="form-group">
+                <label for="currentPassword">Current Password</label>
+                <input type="password" id="currentPassword" placeholder="Enter current password">
+            </div>
+            <div class="form-group">
+                <label for="newPassword">New Password</label>
+                <input type="password" id="newPassword" placeholder="Enter new password">
+                <p class="form-hint">Password must be at least 8 characters long</p>
+            </div>
+            <div class="form-group">
+                <label for="confirmPassword">Confirm New Password</label>
+                <input type="password" id="confirmPassword" placeholder="Confirm new password">
+            </div>
+            <button class="btn-primary" onclick="changePassword()">Update Password</button>
+        </div>
+
+        <!-- 偏好设置 -->
+        <div class="settings-section">
+            <div class="section-title">🎨 Preferences</div>
+            
+            <div class="toggle-row">
+                <div class="toggle-info">
+                    <div class="toggle-label">Email Notifications</div>
+                    <div class="toggle-desc">Receive email updates about your account activity</div>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" checked onchange="toggleSetting(this, 'emailNotifications')">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="toggle-row">
+                <div class="toggle-info">
+                    <div class="toggle-label">Public Profile</div>
+                    <div class="toggle-desc">Allow others to view your profile and posts</div>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" checked onchange="toggleSetting(this, 'publicProfile')">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="toggle-row">
+                <div class="toggle-info">
+                    <div class="toggle-label">Auto-save Favorites</div>
+                    <div class="toggle-desc">Automatically save images you like to favorites</div>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" onchange="toggleSetting(this, 'autoSaveFavorites')">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="toggle-row">
+                <div class="toggle-info">
+                    <div class="toggle-label">Dark Mode</div>
+                    <div class="toggle-desc">Use dark theme across the site</div>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" onchange="toggleSetting(this, 'darkMode')">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <!-- 语言设置 -->
+        <div class="settings-section">
+            <div class="section-title">🌐 Language & Region</div>
+            <div class="form-group">
+                <label for="language">Language</label>
+                <select id="language" onchange="changeLanguage(this.value)">
+                    <option value="en">English</option>
+                    <option value="es">Español (Spanish)</option>
+                    <option value="zh">中文 (Chinese)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="timezone">Timezone</label>
+                <select id="timezone">
+                    <option value="America/Argentina/Buenos_Aires">Argentina (UTC-3)</option>
+                    <option value="America/New_York">Eastern Time (UTC-5)</option>
+                    <option value="America/Los_Angeles">Pacific Time (UTC-8)</option>
+                    <option value="Europe/London">London (UTC+0)</option>
+                    <option value="Asia/Shanghai">China (UTC+8)</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- 危险区域 -->
+        <div class="settings-section danger-zone">
+            <div class="section-title">⚠️ Danger Zone</div>
+            <div class="toggle-row" style="border-bottom: none;">
+                <div class="toggle-info">
+                    <div class="toggle-label">Delete Account</div>
+                    <div class="toggle-desc">Permanently delete your account and all associated data</div>
+                </div>
+                <button class="btn-danger" onclick="deleteAccount()">Delete Account</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const userBtn = document.getElementById('userBtn');
+        const userDropdown = document.getElementById('userDropdown');
+        let isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+        let userEmail = localStorage.getItem('userEmail') || '';
+
+        function updateUserButton() {
+            userBtn.textContent = isLoggedIn && userEmail ? userEmail.charAt(0).toUpperCase() : 'G';
+            if (isLoggedIn && userEmail) {
+                document.getElementById('userEmail').value = userEmail;
+            }
+        }
+        updateUserButton();
+
+        userBtn.addEventListener('click', e => {
+            e.stopPropagation();
+            if (!isLoggedIn) {
+                alert('Please login first!');
+                window.location.href = 'index.html';
+                return;
+            }
+            userDropdown.classList.toggle('show');
+        });
+
+        document.addEventListener('click', () => userDropdown.classList.remove('show'));
+        userDropdown.addEventListener('click', e => e.stopPropagation());
+
+        function signOut() {
+            userDropdown.classList.remove('show');
+            if (confirm('Are you sure you want to sign out?')) {
+                localStorage.removeItem('isLoggedIn');
+                localStorage.removeItem('userEmail');
+                alert('Signed out successfully!');
+                window.location.href = 'index.html';
+            }
+        }
+
+        // 设置功能
+        function saveProfile() {
+            const name = document.getElementById('displayName').value;
+            const email = document.getElementById('userEmail').value;
+            if (email) {
+                userEmail = email;
+                localStorage.setItem('userEmail', email);
+                updateUserButton();
+            }
+            alert('Profile saved successfully!');
+        }
+
+        function resetForm() {
+            document.getElementById('displayName').value = 'User';
+            document.getElementById('userEmail').value = userEmail || 'user@example.com';
+            document.getElementById('bio').value = '';
+        }
+
+        function changePassword() {
+            const current = document.getElementById('currentPassword').value;
+            const newPass = document.getElementById('newPassword').value;
+            const confirm = document.getElementById('confirmPassword').value;
+            
+            if (!current || !newPass || !confirm) {
+                alert('Please fill in all password fields.');
+                return;
+            }
+            if (newPass.length < 8) {
+                alert('New password must be at least 8 characters.');
+                return;
+            }
+            if (newPass !== confirm) {
+                alert('New passwords do not match.');
+                return;
+            }
+            alert('Password updated successfully!');
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+        }
+
+        function toggleSetting(checkbox, settingName) {
+            const status = checkbox.checked ? 'enabled' : 'disabled';
+            alert(`${settingName.replace(/([A-Z])/g, ' $1').trim()} ${status}`);
+        }
+
+        function changeLanguage(lang) {
+            const languages = { en: 'English', es: 'Spanish', zh: 'Chinese' };
+            alert(`Language changed to ${languages[lang]}\n(Full translation coming soon)`);
+        }
+
+        function deleteAccount() {
+            if (confirm('⚠️ WARNING: This will permanently delete your account and all data. This action cannot be undone.\n\nAre you absolutely sure?')) {
+                if (confirm('Type DELETE to confirm account deletion:')) {
+                    localStorage.removeItem('isLoggedIn');
+                    localStorage.removeItem('userEmail');
+                    alert('Account deleted. We are sorry to see you go.');
+                    window.location.href = 'index.html';
+                }
+            }
+        }
+    </script>
+</body>
+</html>
